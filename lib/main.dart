@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_notes/providers/notes_provider.dart';
+import 'package:flutter_notes/screens/add_note_screen.dart';
 import 'package:flutter_notes/screens/note_details_screen.dart';
 import 'package:flutter_notes/screens/notes_screen.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         home: NotesScreen(),
         routes: {
           NoteDetailsScreen.routeName: (context) => const NoteDetailsScreen(),
+          AddNoteScreen.routeName: (context) => AddNoteScreen(),
         },
       ),
     );

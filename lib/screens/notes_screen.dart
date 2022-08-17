@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_notes/providers/notes_provider.dart';
+import 'package:flutter_notes/screens/add_note_screen.dart';
 import 'package:flutter_notes/screens/note_details_screen.dart';
 import 'package:flutter_notes/widgets/note_card.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -29,7 +30,7 @@ class NotesScreen extends StatelessWidget {
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.plus),
             onPressed: () {
-              // TODO: new note page
+              Navigator.of(context).pushNamed(AddNoteScreen.routeName);
             },
           ),
         ],

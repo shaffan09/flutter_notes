@@ -40,10 +40,48 @@ class NoteDetailsScreen extends StatelessWidget {
                 // color: Colors.redAccent,
                 icon: const FaIcon(FontAwesomeIcons.trash),
                 onPressed: () {
-                  // TODO: logic to delete a note
+                  var isDeleting = showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Are you sure!'),
+                      content: const Text(
+                          'Are you sure you want to delete this note?'),
+                      actions: [
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            elevation: 0,
+                            primary: Colors.blueAccent,
+                          ),
+                          child: const Text('No'),
+                          onPressed: () {
+                            Navigator.of(context).pop(false);
+                          },
+                        ),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            elevation: 0,
+                            primary: Colors.redAccent,
+                          ),
+                          child: const Text('Yes'),
+                          onPressed: () {
+                            Navigator.of(context).pop(true);
+                          },
+                        )
+                      ],
+                    ),
+                  ).then((value) {
+                    // deleting note if user pressed yes
+                    if (value == true) {
+                      Provider.of<NotesProvider>(
+                        context,
+                        listen: false,
+                      ).deleteNote(noteId);
+
+                      Navigator.of(context).pop();
+                    }
+                  });
                 },
               ),
-              const SizedBox(width: 8),
             ],
           )
         ],
