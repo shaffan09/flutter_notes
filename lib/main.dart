@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_notes/providers/notes_provider.dart';
-import 'package:flutter_notes/screens/home_screen.dart';
+import 'package:flutter_notes/screens/note_details_screen.dart';
+import 'package:flutter_notes/screens/notes_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -16,11 +17,23 @@ class MyApp extends StatelessWidget {
       create: (context) => NotesProvider(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'Flutter Notes',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primaryColor: Colors.white,
+          scaffoldBackgroundColor: Colors.blueGrey.shade900,
+          appBarTheme: const AppBarTheme(
+            titleTextStyle: TextStyle(
+              fontSize: 20,
+              // fontWeight: FontWeight.bold,
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+          ),
         ),
-        home: const HomeScreen(),
+        home: NotesScreen(),
+        routes: {
+          NoteDetailsScreen.routeName: (context) => const NoteDetailsScreen(),
+        },
       ),
     );
   }
