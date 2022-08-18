@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_notes/helpers/db_helper.dart';
 import 'package:flutter_notes/models/note.dart';
 import 'package:uuid/uuid.dart';
 
 class NotesProvider with ChangeNotifier {
-  final List<Note> _notes = [];
+  List<Note> _notes = [];
 
   List<Note> get items {
     return [..._notes];
@@ -16,7 +17,19 @@ class NotesProvider with ChangeNotifier {
 
   // method to fetch notes from db and set them on notes list
   Future<void> fetchAndSetNotes() async {
-    // TODO: logic to fetch notes from db
+    final notes = await DBHelper.getData('notes');
+
+    _notes = notes.map(
+      (note) {
+        return Note(
+          id: note['id'].toString(),
+          title: note['title'].toString(),
+          body: note['body'].toString(),
+          dateTime: DateTime.parse(note['dateTime'].toString()),
+        );
+      },
+    ).toList();
+
     notifyListeners();
   }
 
@@ -25,22 +38,33 @@ class NotesProvider with ChangeNotifier {
     // an object used to generate random id's
     var uuid = const Uuid();
 
+    final newNote = Note(
+      id: uuid.v4(),
+      title: title,
+      body: body,
+      dateTime: DateTime.now(),
+    );
+
     _notes.insert(
       0,
-      Note(
-        id: uuid.v4(),
-        title: title,
-        body: body,
-        dateTime: DateTime.now(),
-      ),
+      newNote,
     );
-    // TODO: add the logic too add new note o database
+
+    await DBHelper.insert('notes', {
+      'id': newNote.id,
+      'title': newNote.title,
+      'body': newNote.body,
+      'dateTime': newNote.dateTime.toString(),
+    });
+
     notifyListeners();
   }
 
   Future<void> deleteNote(String id) async {
     _notes.removeWhere((note) => note.id == id);
-    // TODO: add the logic to remove note from db as well
+
+    await DBHelper.delete(id);
+
     notifyListeners();
   }
 }

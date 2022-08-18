@@ -21,8 +21,6 @@ class NotesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final notes = Provider.of<NotesProvider>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notes'),
@@ -35,29 +33,45 @@ class NotesScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Container(
-        margin: const EdgeInsets.all(8),
-        child: GridView.builder(
-          physics: const BouncingScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-          ),
-          itemCount: notes.items.length,
-          itemBuilder: (context, index) => NoteCard(
-            title: notes.items[index].title,
-            body: notes.items[index].body,
-            dateTime: notes.items[index].dateTime,
-            color: _accentColors[index % _accentColors.length],
-            onTap: () {
-              Navigator.of(context).pushNamed(
-                NoteDetailsScreen.routeName,
-                arguments: notes.items[index].id,
-              );
-            },
-          ),
-        ),
+      body: FutureBuilder(
+        future: Provider.of<NotesProvider>(
+          context,
+          listen: false,
+        ).fetchAndSetNotes(),
+        builder: (context, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.lightBlueAccent,
+                    ),
+                  )
+                : Consumer<NotesProvider>(
+                    builder: (context, notes, child) => Container(
+                      margin: const EdgeInsets.all(8),
+                      child: GridView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
+                        itemCount: notes.items.length,
+                        itemBuilder: (context, index) => NoteCard(
+                          title: notes.items[index].title,
+                          body: notes.items[index].body,
+                          dateTime: notes.items[index].dateTime,
+                          color: _accentColors[index % _accentColors.length],
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                              NoteDetailsScreen.routeName,
+                              arguments: notes.items[index].id,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
       ),
     );
   }
