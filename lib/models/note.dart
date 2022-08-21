@@ -1,7 +1,7 @@
 class Note {
   final String id;
-  final String title;
-  final String body;
+  String title;
+  String body;
   final DateTime dateTime;
 
   Note({
@@ -10,4 +10,12 @@ class Note {
     required this.body,
     required this.dateTime,
   });
+
+  void updateTitle(String title) {
+    this.title = title;
+  }
+
+  void updatebody(String body) {
+    this.body = body;
+  }
 }

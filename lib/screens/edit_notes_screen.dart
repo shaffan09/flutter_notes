@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_notes/providers/notes_provider.dart';
+import 'package:flutter_notes/screens/note_details_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
-class AddNoteScreen extends StatelessWidget {
-  static const routeName = '/add-note';
+class EditNoteScreen extends StatelessWidget {
+  static const routeName = '/note-edit';
 
-  AddNoteScreen({Key? key}) : super(key: key);
+  EditNoteScreen({Key? key}) : super(key: key);
 
   final _formKey = GlobalKey<FormState>();
 
+  late String _noteId;
   String? _title;
   String? _body;
 
@@ -31,20 +33,31 @@ class AddNoteScreen extends StatelessWidget {
       Provider.of<NotesProvider>(
         context,
         listen: false,
-      ).addNote(_title!, _body!);
+      ).updateNote(_noteId, _title!, _body!);
 
-      Navigator.of(context).pop();
+      Navigator.of(context).pushReplacementNamed(
+        NoteDetailsScreen.routeName,
+        arguments: _noteId,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    var noteId = ModalRoute.of(context)!.settings.arguments;
+    _noteId = noteId.toString();
+    var note = Provider.of<NotesProvider>(context, listen: false)
+        .findById(noteId.toString());
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const FaIcon(FontAwesomeIcons.angleLeft),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pushReplacementNamed(
+              NoteDetailsScreen.routeName,
+              arguments: noteId,
+            );
           },
         ),
         actions: [
@@ -66,6 +79,7 @@ class AddNoteScreen extends StatelessWidget {
               children: [
                 // title input
                 TextFormField(
+                  initialValue: note.title,
                   maxLines: 1,
                   style: const TextStyle(
                     color: Colors.white,
@@ -83,6 +97,7 @@ class AddNoteScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 // body input
                 TextFormField(
+                  initialValue: note.body,
                   keyboardType: TextInputType.multiline,
                   minLines: 1,
                   maxLines: null,

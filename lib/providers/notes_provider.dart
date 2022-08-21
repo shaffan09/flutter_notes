@@ -30,6 +30,8 @@ class NotesProvider with ChangeNotifier {
       },
     ).toList();
 
+    _notes.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+
     notifyListeners();
   }
 
@@ -64,6 +66,24 @@ class NotesProvider with ChangeNotifier {
     _notes.removeWhere((note) => note.id == id);
 
     await DBHelper.delete(id);
+
+    notifyListeners();
+  }
+
+  Future<void> updateNote(String id, String title, String body) async {
+    var note = _notes.firstWhere((note) => note.id == id);
+
+    note.updateTitle(title);
+    note.updatebody(body);
+
+    await DBHelper.update(
+      id,
+      {
+        'id': note.id,
+        'title': title,
+        'body': body,
+      },
+    );
 
     notifyListeners();
   }

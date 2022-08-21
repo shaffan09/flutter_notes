@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_notes/providers/notes_provider.dart';
+import 'package:flutter_notes/screens/edit_notes_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -41,7 +42,7 @@ class NoteDetailsScreen extends StatelessWidget {
           )
         ],
       ),
-    ).then((value) {
+    ).then((value) async {
       // deleting note if user pressed yes
       if (value == true) {
         Provider.of<NotesProvider>(
@@ -60,7 +61,7 @@ class NoteDetailsScreen extends StatelessWidget {
     final note = Provider.of<NotesProvider>(
       context,
       listen: false,
-    ).findById(noteId as String);
+    ).findById(noteId.toString());
 
     return Scaffold(
       appBar: AppBar(
@@ -77,7 +78,10 @@ class NoteDetailsScreen extends StatelessWidget {
                 // color: Colors.lightBlueAccent,
                 icon: const FaIcon(FontAwesomeIcons.penToSquare),
                 onPressed: () {
-                  // logic to go edit screen
+                  Navigator.of(context).pushReplacementNamed(
+                    EditNoteScreen.routeName,
+                    arguments: noteId,
+                  );
                 },
               ),
               const SizedBox(width: 4),
@@ -85,7 +89,7 @@ class NoteDetailsScreen extends StatelessWidget {
                 // color: Colors.redAccent,
                 icon: const FaIcon(FontAwesomeIcons.trash),
                 onPressed: () {
-                  _showDeletionAlertDialog(context, noteId);
+                  _showDeletionAlertDialog(context, noteId.toString());
                 },
               ),
             ],

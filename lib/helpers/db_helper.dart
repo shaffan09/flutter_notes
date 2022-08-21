@@ -43,4 +43,15 @@ class DBHelper {
       whereArgs: [id],
     );
   }
+
+  static Future<void> update(String id, Map<String, Object?> values) async {
+    final db = await DBHelper.database();
+
+    db.update(
+      'notes',
+      values,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
 }
