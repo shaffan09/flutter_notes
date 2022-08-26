@@ -19,7 +19,7 @@ class NotesScreen extends StatelessWidget {
     Colors.tealAccent,
   ];
 
-  late var _tapPosition;
+  late Offset _tapPosition;
 
   void _storeTapPosition(TapDownDetails details) {
     _tapPosition = details.globalPosition;
@@ -45,12 +45,14 @@ class NotesScreen extends StatelessWidget {
     );
   }
 
-  void _showPopupMenu(BuildContext context, String noteId) {
+  void _showPopupMenu(BuildContext context, String noteId, bool isPinned) {
     final RenderBox overlay =
         Overlay.of(context)!.context.findRenderObject() as RenderBox;
 
+    var isDeleting = false;
+
     showMenu(
-      color: Colors.blueGrey.shade900,
+      color: Theme.of(context).primaryColor,
       context: context,
       position: RelativeRect.fromRect(
         _tapPosition & const Size(40, 40),
@@ -60,10 +62,15 @@ class NotesScreen extends StatelessWidget {
         PopupMenuItem(
           child: _buildPopuMenuItem(
             FontAwesomeIcons.thumbtack,
-            'Pin',
+            isPinned ? 'Unpin' : 'Pin',
             Colors.white,
           ),
-          onTap: () {},
+          onTap: () {
+            Provider.of<NotesProvider>(
+              context,
+              listen: false,
+            ).togglePinned(noteId);
+          },
         ),
         PopupMenuItem(
           child: _buildPopuMenuItem(
@@ -98,47 +105,94 @@ class NotesScreen extends StatelessWidget {
       ),
       body: FutureBuilder(
         future: _refreshNotes(context),
-        builder: (context, snapshot) =>
-            snapshot.connectionState == ConnectionState.waiting
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.lightBlueAccent,
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: () => _refreshNotes(context),
-                    child: Consumer<NotesProvider>(
-                      builder: (context, notes, child) => Container(
-                        margin: const EdgeInsets.all(8),
-                        child: GridView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
-                          itemCount: notes.items.length,
-                          itemBuilder: (context, index) => NoteCard(
-                            title: notes.items[index].title,
-                            body: notes.items[index].body,
-                            dateTime: notes.items[index].dateTime,
-                            color: _accentColors[index % _accentColors.length],
-                            onTap: () {
-                              Navigator.of(context).pushNamed(
-                                NoteDetailsScreen.routeName,
-                                arguments: notes.items[index].id,
+        builder: (context, snapshot) => snapshot.connectionState ==
+                ConnectionState.waiting
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.lightBlueAccent,
+                ),
+              )
+            : RefreshIndicator(
+                backgroundColor: Theme.of(context).primaryColor,
+                color: Colors.white,
+                onRefresh: () => _refreshNotes(context),
+                child: Consumer<NotesProvider>(
+                  builder: (context, notes, child) => Container(
+                    margin: const EdgeInsets.all(8),
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      children: [
+                        // pinned notes
+                        if (notes.pinnedNotes.isNotEmpty)
+                          ...List.generate(
+                            notes.pinnedNotes.length,
+                            (index) {
+                              var note = notes.pinnedNotes[index];
+                              return NoteCard(
+                                title: note.title,
+                                body: note.body,
+                                dateTime: note.dateTime,
+                                color:
+                                    _accentColors[index % _accentColors.length],
+                                isPinned: note.isPinned,
+                                onTap: () {
+                                  Navigator.of(context).pushNamed(
+                                    NoteDetailsScreen.routeName,
+                                    arguments: note.id,
+                                  );
+                                },
+                                onLongPress: () {
+                                  _showPopupMenu(
+                                    context,
+                                    note.id,
+                                    note.isPinned,
+                                  );
+                                },
+                                onTapDown: _storeTapPosition,
                               );
                             },
-                            onLongPress: () {
-                              _showPopupMenu(context, notes.items[index].id);
-                            },
-                            onTapDown: _storeTapPosition,
                           ),
+
+                        // just to bring unpinned notes next line
+                        if (notes.pinnedNotes.length.isOdd)
+                          const SizedBox(height: 8),
+
+                        // unpinned notes
+                        ...List.generate(
+                          notes.unPinnedNotes.length,
+                          (index) {
+                            var note = notes.unPinnedNotes[index];
+                            return NoteCard(
+                              title: note.title,
+                              body: note.body,
+                              dateTime: note.dateTime,
+                              color:
+                                  _accentColors[index % _accentColors.length],
+                              isPinned: note.isPinned,
+                              onTap: () {
+                                Navigator.of(context).pushNamed(
+                                  NoteDetailsScreen.routeName,
+                                  arguments: note.id,
+                                );
+                              },
+                              onLongPress: () {
+                                _showPopupMenu(
+                                  context,
+                                  note.id,
+                                  note.isPinned,
+                                );
+                              },
+                              onTapDown: _storeTapPosition,
+                            );
+                          },
                         ),
-                      ),
+                      ],
                     ),
                   ),
+                ),
+              ),
       ),
     );
   }

@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Notes',
         theme: ThemeData(
-          primaryColor: Colors.white,
+          primaryColor: Colors.blueGrey.shade900,
           scaffoldBackgroundColor: Colors.blueGrey.shade900,
           appBarTheme: const AppBarTheme(
             titleTextStyle: TextStyle(

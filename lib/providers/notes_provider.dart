@@ -10,6 +10,14 @@ class NotesProvider with ChangeNotifier {
     return [..._notes];
   }
 
+  List<Note> get pinnedNotes {
+    return _notes.where((note) => note.isPinned).toList();
+  }
+
+  List<Note> get unPinnedNotes {
+    return _notes.where((note) => !note.isPinned).toList();
+  }
+
   // method to find note by id
   Note findById(String id) {
     return _notes.firstWhere((note) => note.id == id);
@@ -26,6 +34,7 @@ class NotesProvider with ChangeNotifier {
           title: note['title'].toString(),
           body: note['body'].toString(),
           dateTime: DateTime.parse(note['dateTime'].toString()),
+          isPinned: note['isPinned'] == 1 ? true : false,
         );
       },
     ).toList();
@@ -57,6 +66,7 @@ class NotesProvider with ChangeNotifier {
       'title': newNote.title,
       'body': newNote.body,
       'dateTime': newNote.dateTime.toString(),
+      'isPinned': 0,
     });
 
     notifyListeners();
@@ -82,6 +92,21 @@ class NotesProvider with ChangeNotifier {
         'id': note.id,
         'title': title,
         'body': body,
+      },
+    );
+
+    notifyListeners();
+  }
+
+  Future<void> togglePinned(String id) async {
+    var note = _notes.firstWhere((note) => note.id == id);
+
+    note.toggleIsPinned();
+
+    await DBHelper.update(
+      id,
+      {
+        'isPinned': note.isPinned ? 1 : 0,
       },
     );
 

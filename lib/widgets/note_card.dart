@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
 class NoteCard extends StatelessWidget {
@@ -11,12 +12,14 @@ class NoteCard extends StatelessWidget {
     required this.onTap,
     required this.onLongPress,
     required this.onTapDown,
+    required this.isPinned,
   }) : super(key: key);
 
   final String title;
   final String body;
   final DateTime dateTime;
   final Color color;
+  final bool isPinned;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   void Function(TapDownDetails details) onTapDown;
@@ -38,13 +41,27 @@ class NoteCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                DateFormat.yMMMMd('en_us').format(dateTime),
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  color: Colors.grey.shade800,
-                  fontSize: 13,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    DateFormat.yMMMMd('en_us').format(dateTime),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey.shade800,
+                      fontSize: 13,
+                    ),
+                  ),
+                  if (isPinned)
+                    const RotationTransition(
+                      turns: AlwaysStoppedAnimation(45 / 360),
+                      child: FaIcon(
+                        FontAwesomeIcons.thumbtack,
+                        color: Colors.white,
+                        size: 13,
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: 8),
               Text(

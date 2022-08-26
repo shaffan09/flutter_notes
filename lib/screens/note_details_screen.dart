@@ -14,7 +14,7 @@ class NoteDetailsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.blueGrey.shade900,
+        backgroundColor: Theme.of(context).primaryColor,
         titleTextStyle: const TextStyle(color: Colors.white),
         contentTextStyle: const TextStyle(color: Colors.white),
         title: const Text('Are you sure!'),
@@ -23,7 +23,7 @@ class NoteDetailsScreen extends StatelessWidget {
           TextButton(
             style: TextButton.styleFrom(
               elevation: 0,
-              primary: Colors.lightBlueAccent,
+              primary: Colors.white,
             ),
             child: const Text('No'),
             onPressed: () {

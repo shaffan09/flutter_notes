@@ -10,7 +10,7 @@ class DBHelper {
       join(dbPath, 'flutter_notes.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE notes(id TEXT PRIMARY KEY, title TEXT NOT NULL, body TEXT NOT NULL, dateTime TEXT NOT NULL)',
+          'CREATE TABLE notes(id TEXT PRIMARY KEY, title TEXT NOT NULL, body TEXT NOT NULL, dateTime TEXT NOT NULL, isPinned INTEGER NOT NULL)',
         );
       },
       version: 1,
