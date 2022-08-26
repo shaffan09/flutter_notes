@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class NoteCard extends StatelessWidget {
-  const NoteCard({
+  NoteCard({
     Key? key,
     required this.title,
     required this.body,
     required this.dateTime,
     required this.color,
     required this.onTap,
+    required this.onLongPress,
+    required this.onTapDown,
   }) : super(key: key);
 
   final String title;
@@ -16,6 +18,8 @@ class NoteCard extends StatelessWidget {
   final DateTime dateTime;
   final Color color;
   final VoidCallback onTap;
+  final VoidCallback onLongPress;
+  void Function(TapDownDetails details) onTapDown;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +30,8 @@ class NoteCard extends StatelessWidget {
       ),
       elevation: 0,
       child: InkWell(
+        onTapDown: onTapDown, // this sets the tap positions
+        onLongPress: onLongPress,
         onTap: onTap,
         child: Container(
           margin: const EdgeInsets.all(16),

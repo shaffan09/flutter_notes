@@ -19,6 +19,69 @@ class NotesScreen extends StatelessWidget {
     Colors.tealAccent,
   ];
 
+  late var _tapPosition;
+
+  void _storeTapPosition(TapDownDetails details) {
+    _tapPosition = details.globalPosition;
+  }
+
+  Future<void> _refreshNotes(BuildContext context) async {
+    await Provider.of<NotesProvider>(context, listen: false).fetchAndSetNotes();
+  }
+
+  Widget _buildPopuMenuItem(IconData icon, String text, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          text,
+          style: TextStyle(color: color),
+        ),
+        FaIcon(
+          icon,
+          color: color,
+        ),
+      ],
+    );
+  }
+
+  void _showPopupMenu(BuildContext context, String noteId) {
+    final RenderBox overlay =
+        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+
+    showMenu(
+      color: Colors.blueGrey.shade900,
+      context: context,
+      position: RelativeRect.fromRect(
+        _tapPosition & const Size(40, 40),
+        Offset.zero & overlay.size,
+      ),
+      items: [
+        PopupMenuItem(
+          child: _buildPopuMenuItem(
+            FontAwesomeIcons.thumbtack,
+            'Pin',
+            Colors.white,
+          ),
+          onTap: () {},
+        ),
+        PopupMenuItem(
+          child: _buildPopuMenuItem(
+            FontAwesomeIcons.trash,
+            'Delete',
+            Colors.redAccent,
+          ),
+          onTap: () {
+            Provider.of<NotesProvider>(
+              context,
+              listen: false,
+            ).deleteNote(noteId);
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,10 +97,7 @@ class NotesScreen extends StatelessWidget {
         ],
       ),
       body: FutureBuilder(
-        future: Provider.of<NotesProvider>(
-          context,
-          listen: false,
-        ).fetchAndSetNotes(),
+        future: _refreshNotes(context),
         builder: (context, snapshot) =>
             snapshot.connectionState == ConnectionState.waiting
                 ? const Center(
@@ -45,29 +105,36 @@ class NotesScreen extends StatelessWidget {
                       color: Colors.lightBlueAccent,
                     ),
                   )
-                : Consumer<NotesProvider>(
-                    builder: (context, notes, child) => Container(
-                      margin: const EdgeInsets.all(8),
-                      child: GridView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                        itemCount: notes.items.length,
-                        itemBuilder: (context, index) => NoteCard(
-                          title: notes.items[index].title,
-                          body: notes.items[index].body,
-                          dateTime: notes.items[index].dateTime,
-                          color: _accentColors[index % _accentColors.length],
-                          onTap: () {
-                            Navigator.of(context).pushNamed(
-                              NoteDetailsScreen.routeName,
-                              arguments: notes.items[index].id,
-                            );
-                          },
+                : RefreshIndicator(
+                    onRefresh: () => _refreshNotes(context),
+                    child: Consumer<NotesProvider>(
+                      builder: (context, notes, child) => Container(
+                        margin: const EdgeInsets.all(8),
+                        child: GridView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                          itemCount: notes.items.length,
+                          itemBuilder: (context, index) => NoteCard(
+                            title: notes.items[index].title,
+                            body: notes.items[index].body,
+                            dateTime: notes.items[index].dateTime,
+                            color: _accentColors[index % _accentColors.length],
+                            onTap: () {
+                              Navigator.of(context).pushNamed(
+                                NoteDetailsScreen.routeName,
+                                arguments: notes.items[index].id,
+                              );
+                            },
+                            onLongPress: () {
+                              _showPopupMenu(context, notes.items[index].id);
+                            },
+                            onTapDown: _storeTapPosition,
+                          ),
                         ),
                       ),
                     ),
